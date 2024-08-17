@@ -1,0 +1,61 @@
+---
+
+networks:
+  zabbix:
+    driver: 'bridge'
+
+services:
+  mariadb:
+    container_name: 'zabbix-db'
+    hostname: 'db'
+    image: 'mariadb:lts'
+    command: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin'
+    env_file: "{{ ZBX_HC.path.config }}/db.env"
+    volumes:
+      - '{{ ZBX_CONFIG.path.db }}:/var/lib/mysql'
+    ports:
+      - '127.0.0.1:3306:3306'
+    restart: 'unless-stopped'
+    networks:
+      - 'zabbix'
+
+  frontend:
+    hostname: 'frontend'
+    container_name: 'zabbix-frontend'
+    image: 'zabbix/zabbix-web-nginx-mysql:alpine-{{ ZBX_CONFIG.version }}-latest'
+    env_file: "{{ ZBX_HC.path.config }}/frontend.env"
+    ports:
+      - '127.0.0.1:8080:8080/tcp'
+    restart: 'unless-stopped'
+    depends_on:
+      - 'mariadb'
+    networks:
+      - 'zabbix'
+
+  snmp:
+    hostname: 'snmp'
+    container_name: 'zabbix-snmp'
+    image: 'zabbix/zabbix-snmptraps:alpine-{{ ZBX_CONFIG.version }}-latest'
+    volumes:
+      - '{{ ZBX_HC.path.snmp }}:/var/lib/zabbix/snmptraps:rw'
+      - '/usr/share/snmp/mibs:/var/lib/zabbix/mibs:ro'
+    ports:
+      - '162:1162/udp'
+    restart: 'unless-stopped'
+    networks:
+      - 'zabbix'
+
+  backend:
+    hostname: 'backend'
+    container_name: 'zabbix-backend'
+    image: 'zabbix/zabbix-server-mysql:alpine-{{ ZBX_CONFIG.version }}-latest'
+    env_file: "{{ ZBX_HC.path.config }}/backend.env"
+    volumes_from:
+      - 'snmp'
+    ports:
+      - '10051:10051/tcp'
+    restart: 'unless-stopped'
+    depends_on:
+      - 'mariadb'
+    networks:
+      - 'zabbix'

@@ -1,0 +1,193 @@
+---
+
+- name: Zabbix Server | Docker
+  ansible.builtin.include_role:
+    name: ansibleguy.infra_docker_minimal
+  vars:
+    docker:
+      compose:
+        enable: true
+      nftables:
+        reload: "{{ ZBX_CONFIG.docker_nftables | bool }}"
+        disable_iptables: "{{ ZBX_CONFIG.docker_nftables | bool }}"
+  tags: docker
+  args:
+    apply:
+      tags: docker
+
+- name: Zabbix Server | Install MariaDB-Client
+  ansible.builtin.apt:
+    name: 'mariadb-client'
+
+- name: Zabbix Server | Adding directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    mode: 0750
+    state: directory
+  loop:
+    - "{{ ZBX_HC.path.config }}"
+    - "{{ ZBX_CONFIG.path.db }}"
+    - "{{ ZBX_CONFIG.backup.path }}"
+  register: zbx_installed
+
+- name: Zabbix Server | Getting local timezone
+  ansible.builtin.shell: |
+    set -o pipefail
+    timedatectl | grep 'Time zone' | cut -d':' -f2 | cut -d' ' -f2
+  args:
+    executable: '/bin/bash'
+  register: controller_tz
+  delegate_to: localhost
+  changed_when: false
+  check_mode: false
+  become: false
+  when: ZBX_CONFIG.timezone | default(none, true) is none
+
+- name: Zabbix Server | Frontend DB Variables
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_zabbix_server
+      MARIADB_ROOT_PASSWORD={{ ZBX_CONFIG.db.root_pwd }}
+      MARIADB_USER=zabbix
+      MARIADB_PASSWORD={{ ZBX_CONFIG.db.app_pwd }}
+      MARIADB_DATABASE=zabbix
+    dest: "{{ ZBX_HC.path.config }}/frontend.env"
+    mode: 0600
+  no_log: true
+  notify: ['zbx-rebuild1', 'zbx-rebuild2']
+
+- name: Zabbix Server | Frontend Environmental Variables
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_zabbix_server
+      PHP_TZ={{ ZBX_CONFIG.timezone | default(controller_tz.stdout, true) }}
+      DB_SERVER_HOST=db
+      MYSQL_DATABASE=zabbix
+      MYSQL_USER=zabbix
+      MYSQL_PASSWORD={{ ZBX_CONFIG.db.app_pwd }}
+      ZBX_SERVER_HOST=backend
+      
+      {% for setting, value in ZBX_CONFIG.settings.frontend.items() %}
+      {{ setting }}={{ value }}
+      {% endfor %}
+    dest: "{{ ZBX_HC.path.config }}/frontend.env"
+    mode: 0600
+  no_log: true
+  notify: ['zbx-rebuild1', 'zbx-rebuild2']
+
+- name: Zabbix Server | Backend Environmental Variables
+  ansible.builtin.copy:
+    content: |
+      # ansible_managed
+      # ansibleguy.sw_zabbix_server
+      DB_SERVER_HOST=db
+      MYSQL_DATABASE=zabbix
+      MYSQL_USER=zabbix
+      MYSQL_PASSWORD={{ ZBX_CONFIG.db.app_pwd }}
+
+      {% for setting, value in ZBX_CONFIG.settings.backend.items() %}
+      {{ setting }}={{ value }}
+      {% endfor %}
+    dest: "{{ ZBX_HC.path.config }}/backend.env"
+    mode: 0600
+  no_log: true
+  notify: ['zbx-rebuild1', 'zbx-rebuild2']
+
+- name: Zabbix Server | Add docker-compose config
+  ansible.builtin.copy:
+    src: 'templates/etc/zabbix/server/docker-compose.yml.j2'
+    dest: "{{ ZBX_HC.path.config }}/docker-compose.yml"
+    mode: 0640
+  notify: ['zbx-rebuild1', 'zbx-rebuild2']
+
+- name: Zabbix Server | Handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Zabbix Server | Adding service files
+  ansible.builtin.template:
+    src: 'templates/etc/systemd/system/zabbix-server.service.j2'
+    dest: '/etc/systemd/system/zabbix-server.service'
+    owner: 'root'
+    group: 'root'
+    mode: 0755
+
+- name: Zabbix Server | Adding update script
+  ansible.builtin.template:
+    src: 'templates/usr/local/sbin/zabbix-server-update.sh.j2'
+    dest: '/usr/local/sbin/zabbix-server-update.sh'
+    owner: 'root'
+    group: 'root'
+    mode: 0750
+  tags: config
+
+- name: Zabbix Server | Adding update service
+  ansible.builtin.template:
+    src: "templates/etc/systemd/system/{{ item }}.j2"
+    dest: "/etc/systemd/system/{{ item }}"
+    owner: 'root'
+    group: 'root'
+    mode: 0755
+  loop:
+    - 'zabbix-server-update.service'
+    - 'zabbix-server-update.timer'
+
+- name: Zabbix Server | Enabling/starting service
+  ansible.builtin.systemd:
+    daemon_reload: true
+    name: 'zabbix-server.service'
+    enabled: true
+    state: started
+
+- name: Zabbix Server | Enabling/starting update timer
+  ansible.builtin.systemd:
+    name: 'zabbix-server-update.timer'
+    enabled: true
+    state: started
+  when: ZBX_CONFIG.auto_update.enable | bool
+
+- name: Zabbix Server | Webserver
+  ansible.builtin.include_role:
+    name: ansibleguy.infra_nginx
+  when: ZBX_CONFIG.manage.webserver | bool
+  vars:
+    zbx_nginx_config_overrides:
+      domain: "{{ ZBX_CONFIG.hostnames | ensure_list | first }}"
+      aliases: "{{ ZBX_CONFIG.hostnames }}"
+      proxy:
+        proto: 'http'
+        port: 8080
+      security:
+        restrict_methods: false
+      config_additions: []
+      config_additions_root:
+        - 'proxy_hide_header X-Powered-By'
+        - 'proxy_hide_header Server'
+      headers:  # unset as they are set by the docker application
+        X-Content-Type-Options:
+        X-Frame-Options:
+        X-Xss-Protection:
+        Referrer-Policy:
+
+    nginx:
+      sites:
+        zabbix: "{{ ZBX_CONFIG.nginx | combine(zbx_nginx_config_overrides, recursive=true) }}"
+  tags: [webserver]
+  args:
+    apply:
+      tags: [webserver]
+
+- name: Zabbix Server | Displaying auto-generated credentials
+  ansible.builtin.debug:
+    msg: "Make sure to update your 'zabbix_server.db.app_pwd' and
+    'zabbix_server.db.root_pwd' if not configured!
+    Database-Root: '{{ ZBX_CONFIG.db.root_pwd }}',
+    Database-App: '{{ ZBX_CONFIG.db.app_pwd }}'"
+  when: >
+    zbx_installed.changed and
+    (
+    ZBX_CONFIG.admin.pwd == defaults_nc.admin.pwd or
+    ZBX_CONFIG.db.root_pwd == defaults_nc.db.root_pwd or
+    ZBX_CONFIG.db.app_pwd == defaults_nc.db.app_pwd
+    )

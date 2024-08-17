@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# {{ ansible_managed }}
+# ansibleguy.sw_zabbix_server
+
+set -euo pipefail
+
+echo "### STOPPING ZABBIX SERVER ###"
+systemctl stop zabbix-server.service
+docker compose -f "{{ ZBX_HC.path.config }}/docker-compose.yml" down
+docker image prune -f
+
+echo "### UPDATING ZABBIX SERVER ###"
+docker compose -f "{{ ZBX_HC.path.config }}/docker-compose.yml" pull --quiet --ignore-pull-failures
+
+echo "### STARTING ZABBIX SERVER ###"
+systemctl start zabbix.service

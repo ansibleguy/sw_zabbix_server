@@ -1,0 +1,9 @@
+---
+
+random_pwd_length: '50'  # must be string-type
+tmp_pwd_file_prefix: '/tmp/.ansibleguy.sw_zabbix_server'
+
+ZBX_HC:
+  path:
+    config: '/etc/zabbix/server'
+    snmp: '/var/lib/zabbix/snmptraps'

@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+# ansibleguy.sw_zabbix_server
+
+[Unit]
+Description=Service to run dockerized Zabbix Server
+Requires=docker.service
+After=network.target
+Documentation=https://github.com/ansibleguy/sw_zabbix_server
+
+[Service]
+Type=simple
+TimeoutStartSec=1800
+ExecStart=docker compose -f {{ ZBX_HC.path.config }}/docker-compose.yml up
+ExecStop=docker compose -f {{ ZBX_HC.path.config }}/docker-compose.yml stop --timeout 30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=zabbix-server
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target

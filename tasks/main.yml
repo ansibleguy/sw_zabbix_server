@@ -1,0 +1,11 @@
+---
+
+- name: sw_zabbix_server | Checking config
+  ansible.builtin.assert:
+    that:
+      - app is defined
+  tags: always
+
+- name: sw_zabbix_server | Processing debian config
+  ansible.builtin.import_tasks: debian/main.yml
+  when: "ansible_distribution|lower in ['debian', 'ubuntu']"
