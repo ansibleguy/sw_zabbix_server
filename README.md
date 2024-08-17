@@ -2,8 +2,6 @@
 <img src="https://assets.zabbix.com/img/logo/zabbix_logo_313x82.png" alt="Zabbix Logo" width="300"/>
 </a>
 
-[![Zabbix](https://assets.zabbix.com/img/logo/zabbix_logo_313x82.png)](https://www.zabbix.com)
-
 # Ansible Role - Zabbix Server Dockerized
 
 **WARNING: This role is still in early development! DO NOT USE IN PRODUCTION!**
