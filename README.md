@@ -120,6 +120,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 
 
 * **Configuration**
+  * MariaDB database container
   * **Default opt-ins**:
     * Auto-Update
     * Installing and Configuring Nginx Webserver
