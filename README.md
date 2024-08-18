@@ -37,49 +37,52 @@ ansible-galaxy install ansibleguy.sw_zabbix_server --roles-path ./roles
 ansible-galaxy install -r requirements.yml
 ```
 
-## Functionality
-
-* **Package installation**
-  * Ansible dependencies (_minimal_)
-
-
-* **Configuration**
-  * 
-
-
-  * **Default config**:
-    * 
- 
-
-  * **Default opt-ins**:
-    * 
-
-
-  * **Default opt-outs**:
-    * 
-
-## Info
-
-* **Note:** this role currently only supports debian-based systems
-
-
-* **Note:** Most of the role's functionality can be opted in or out.
-
-  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/sw_zabbix_server/blob/latest/defaults/main/1_main.yml)!
-
-
-* **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
-
+----
 
 ## Usage
 
 ### Config
 
+Minimal example:
+
+```yaml
+zabbix_server:
+  domain: 'mon.template.ansibleguy.net'
+
+  db:
+    root_pwd: !vault |
+      ...
+    app_pwd: !vault |
+      ...
+```
+
+
 Define the config as needed:
 
 ```yaml
 zabbix_server:
+  version: '7.0'  # see docker image tags
+  
+  domain: 'mon.template.ansibleguy.net'
+  aliases:
+    - 'monitoring.template.ansibleguy.net'
 
+  # provide settings as environmental variables
+  settings:
+    # see: https://hub.docker.com/r/zabbix/zabbix-web-nginx-mysql
+    frontend:
+      ZBX_SERVER_NAME: 'AnsibleGuy Monitoring'
+      ZBX_SERVER_PORT: 10151
+
+    # see: https://hub.docker.com/r/zabbix/zabbix-server-mysql
+    backend:
+      ZBX_LISTENPORT: 10151
+
+  db:
+    root_pwd: !vault |
+      ...
+    app_pwd: !vault |
+      ...
 ```
 
 You might want to use 'ansible-vault' to encrypt your passwords:
@@ -95,10 +98,48 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml
 ```
 
 There are also some useful **tags** available:
-* 
-*
+* docker
+* config
+* backup
+* update
 
 To debug errors - you can set the 'debug' variable at runtime:
 ```bash
 ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 ```
+
+----
+
+## Functionality
+
+* **Package installation**
+  * Ansible dependencies (_minimal_)
+  * Docker server + client
+  * Nginx Webserver
+  * MariaDB client
+
+
+* **Configuration**
+  * **Default opt-ins**:
+    * Auto-Update
+    * Installing and Configuring Nginx Webserver
+
+----
+
+## Info
+
+* **Note:** this role currently only supports debian-based systems
+
+
+* **Note:** Most of the role's functionality can be opted in or out.
+
+  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/sw_zabbix_server/blob/latest/defaults/main/1_main.yml)!
+
+
+* **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!
+
+
+* **Info:** The default Zabbix Server Login is:
+
+  User: **Admin**
+  Password: **zabbix**

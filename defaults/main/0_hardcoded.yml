@@ -7,3 +7,4 @@ ZBX_HC:
   path:
     config: '/etc/zabbix/server'
     snmp: '/var/lib/zabbix/snmptraps'
+    mariadb_client_config: '/root/.mariadb_zabbix.cnf'

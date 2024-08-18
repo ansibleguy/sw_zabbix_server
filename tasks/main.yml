@@ -1,11 +1,12 @@
 ---
 
-- name: sw_zabbix_server | Checking config
+- name: Zabbix Server | Checking config
   ansible.builtin.assert:
     that:
-      - app is defined
+      - zabbix_server is defined
+      - zabbix_server.domain|default(none, true) is not none
   tags: always
 
-- name: sw_zabbix_server | Processing debian config
+- name: Zabbix Server | Processing debian config
   ansible.builtin.import_tasks: debian/main.yml
   when: "ansible_distribution|lower in ['debian', 'ubuntu']"

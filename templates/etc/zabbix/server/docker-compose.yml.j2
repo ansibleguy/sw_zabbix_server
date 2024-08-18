@@ -9,7 +9,7 @@ services:
     container_name: 'zabbix-db'
     hostname: 'db'
     image: 'mariadb:lts'
-    command: 'mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_bin'
+    command: 'mariadbd --character-set-server=utf8mb4 --collation-server=utf8mb4_bin'
     env_file: "{{ ZBX_HC.path.config }}/db.env"
     volumes:
       - '{{ ZBX_CONFIG.path.db }}:/var/lib/mysql'

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# {{ ansible_managed }}
+# ansibleguy.sw_zabbix_server
+
+set -euo pipefail
+
+BACKUP_PATH="{{ ZBX_CONFIG.backup.path }}"
+BACKUP_FILE="${BACKUP_PATH}/zabbix_$(date '+%Y_%m_%d_%H_%M_%S').sql.xz"
+RETENTION={{ ZBX_CONFIG.backup.retention_days }}
+
+echo "### BACKUP DB ###"
+mariadb-dump --defaults-file='{{ ZBX_HC.path.mariadb_client_config }}' 'zabbix' | xz > "$BACKUP_FILE"
+
+echo "### CLEANUP OLD BACKUPS ###"
+find "$BACKUP_PATH" -name 'zabbix_*.sql.xz' -type f -mtime +"$RETENTION"
+find "$BACKUP_PATH" -name 'zabbix_*.sql.xz' -type f -mtime +"$RETENTION" -delete
+
+echo "### FINISHED ###"
