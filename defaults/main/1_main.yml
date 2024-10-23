@@ -54,6 +54,7 @@ defaults_zbx_srv:
 
     headers: {}
 
+  docker_mtu:
   docker_nftables: false
   # reload nftables after docker start to clean the auto-created iptables rules
   # you will have to manage the docker ruleset yourself - example:
