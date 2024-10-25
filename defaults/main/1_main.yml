@@ -13,10 +13,12 @@ defaults_zbx_srv:
   # provide settings as environmental variables
   settings:
     # see: https://hub.docker.com/r/zabbix/zabbix-web-nginx-mysql
-    frontend: {}
+    frontend:
+      ZBX_SERVER_PORT: 10051
 
     # see: https://hub.docker.com/r/zabbix/zabbix-server-mysql
-    backend: {}
+    backend:
+      ZBX_LISTENPORT: 10051
 
   db:
     root_pwd: "{{ lookup('password', tmp_pwd_file_prefix + '_nc_mdb_root chars=ascii_letters,digits length=' + random_pwd_length) }}"
