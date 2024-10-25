@@ -14,4 +14,4 @@ echo "### UPDATING ZABBIX SERVER ###"
 docker compose -f "{{ ZBX_HC.path.config }}/docker-compose.yml" pull --quiet --ignore-pull-failures
 
 echo "### STARTING ZABBIX SERVER ###"
-systemctl start zabbix.service
+systemctl start zabbix-server.service
