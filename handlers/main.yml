@@ -1,10 +1,10 @@
 ---
 
-- name: zbx-rebuild-down
+- name: ZBX-rebuild-down
   community.docker.docker_compose_v2:
     project_src: "{{ ZBX_HC.path.config }}"
     state: absent
 
-- name: zbx-rebuild-up
+- name: ZBX-rebuild-up
   community.docker.docker_compose_v2:
     project_src: "{{ ZBX_HC.path.config }}"

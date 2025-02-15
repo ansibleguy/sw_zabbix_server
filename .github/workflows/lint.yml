@@ -67,5 +67,5 @@ jobs:
         shell: bash
 
       - name: Running AnsibleLint
-        run: ANSIBLE_sw_zabbix_serverS_PATH=/tmp/ansible_lint/roles/ ansible-lint -c .ansible-lint.yml
+        run: ANSIBLE_ROLES_PATH=/tmp/ansible_lint/roles/ ansible-lint -c .ansible-lint.yml
         shell: bash

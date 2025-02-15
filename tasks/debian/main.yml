@@ -52,7 +52,7 @@
     dest: "{{ ZBX_HC.path.config }}/db.env"
     mode: 0600
   no_log: true
-  notify: ['zbx-rebuild-down', 'zbx-rebuild-up']
+  notify: ['ZBX-rebuild-down', 'ZBX-rebuild-up']
   tags: config
 
 - name: Zabbix Server | Frontend Environmental Variables
@@ -73,7 +73,7 @@
     dest: "{{ ZBX_HC.path.config }}/frontend.env"
     mode: 0600
   no_log: true
-  notify: ['zbx-rebuild-down', 'zbx-rebuild-up']
+  notify: ['ZBX-rebuild-down', 'ZBX-rebuild-up']
   tags: config
 
 - name: Zabbix Server | Backend Environmental Variables
@@ -92,7 +92,7 @@
     dest: "{{ ZBX_HC.path.config }}/backend.env"
     mode: 0600
   no_log: true
-  notify: ['zbx-rebuild-down', 'zbx-rebuild-up']
+  notify: ['ZBX-rebuild-down', 'ZBX-rebuild-up']
   tags: config
 
 - name: Zabbix Server | Add docker-compose config
@@ -100,7 +100,7 @@
     src: 'templates/etc/zabbix/server/docker-compose.yml.j2'
     dest: "{{ ZBX_HC.path.config }}/docker-compose.yml"
     mode: 0640
-  notify: ['zbx-rebuild-down', 'zbx-rebuild-up']
+  notify: ['ZBX-rebuild-down', 'ZBX-rebuild-up']
   tags: config
 
 - name: Zabbix Server | Handlers
