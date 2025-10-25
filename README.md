@@ -6,16 +6,16 @@
 
 Role to deploy dockerized Zabbix Server on a Linux Server.
 
-[![Lint](https://github.com/ansibleguy/sw_zabbix_server/actions/workflows/lint.yml/badge.svg)](https://github.com/ansibleguy/sw_zabbix_server/actions/workflows/lint.yml)
-[![Ansible Galaxy](https://badges.ansibleguy.net/galaxy.badge.svg)](https://galaxy.ansible.com/ui/standalone/roles/ansibleguy/sw_zabbix_server)
+[![Lint](https://github.com/O-X-L/ansible-role-zabbix-server/actions/workflows/lint.yml/badge.svg)](https://github.com/O-X-L/ansible-role-zabbix-server/actions/workflows/lint.yml)
+[![Ansible Galaxy](https://badges.oss.oxl.app/galaxy.badge.svg)](https://galaxy.ansible.com/ui/standalone/roles/oxlorg/zabbix_server)
 
 **Molecule Integration-Tests**:
 
-* Status: [![Molecule Test Status](https://badges.ansibleguy.net/sw_zabbix_server.molecule.svg)](https://github.com/ansibleguy/_meta_cicd/blob/latest/templates/usr/local/bin/cicd/molecule.sh.j2) |
-[![Functional-Tests](https://github.com/ansibleguy/sw_zabbix_server/actions/workflows/integration_test_result.yml/badge.svg)](https://github.com/ansibleguy/sw_zabbix_server/actions/workflows/integration_test_result.yml)
-* Logs: [API](https://ci.ansibleguy.net/api/job/ansible-test-molecule-sw_zabbix_server/logs?token=2b7bba30-9a37-4b57-be8a-99e23016ce70&lines=1000) | [Short](https://badges.ansibleguy.net/log/molecule_sw_zabbix_server_test_short.log) | [Full](https://badges.ansibleguy.net/log/molecule_sw_zabbix_server_test.log)
+* Status: [![Molecule Test Status](https://badges.oss.oxl.app/sw_zabbix_server.molecule.svg)](https://github.com/O-X-L/ansible-role-oxl-cicd/blob/latest/templates/usr/local/bin/cicd/molecule.sh.j2) |
+[![Functional-Tests](https://github.com/O-X-L/ansible-role-zabbix-server/actions/workflows/integration_test_result.yml/badge.svg)](https://github.com/O-X-L/ansible-role-zabbix-server/actions/workflows/integration_test_result.yml)
+* Logs: [API](https://ci.oss.oxl.app/api/job/ansible-test-molecule-sw_zabbix_server/logs?token=2b7bba30-9a37-4b57-be8a-99e23016ce70&lines=1000) | [Short](https://badges.oss.oxl.app/log/molecule_sw_zabbix_server_test_short.log) | [Full](https://badges.oss.oxl.app/log/molecule_sw_zabbix_server_test.log)
 
-Internal CI: [Tester Role](https://github.com/ansibleguy/_meta_cicd) | [Jobs API](https://github.com/O-X-L/github-self-hosted-jobs-systemd)
+Internal CI: [Tester Role](https://github.com/O-X-L/ansible-role-oxl-cicd) | [Jobs API](https://github.com/O-X-L/github-self-hosted-jobs-systemd)
 
 **Tested:**
 * Debian 12
@@ -26,13 +26,13 @@ Internal CI: [Tester Role](https://github.com/ansibleguy/_meta_cicd) | [Jobs API
 
 ```bash
 # latest
-ansible-galaxy role install git+https://github.com/ansibleguy/sw_zabbix_server
+ansible-galaxy role install git+https://github.com/O-X-L/ansible-role-zabbix-server
 
 # from galaxy
-ansible-galaxy install ansibleguy.sw_zabbix_server
+ansible-galaxy install oxlorg.zabbix_server
 
 # or to custom role-path
-ansible-galaxy install ansibleguy.sw_zabbix_server --roles-path ./roles
+ansible-galaxy install oxlorg.zabbix_server --roles-path ./roles
 
 # install dependencies
 ansible-galaxy install -r requirements.yml
@@ -54,7 +54,7 @@ ansible-galaxy install -r requirements.yml
 
 * You want a simple **Ansible GUI**?
 
-  Check-out this [Ansible WebUI](https://github.com/ansibleguy/webui)
+  Check-out this [Ansible WebUI](https://github.com/O-X-L/ansible-webui)
 
 ----
 
@@ -66,7 +66,7 @@ Minimal example:
 
 ```yaml
 zabbix_server:
-  domain: 'mon.template.ansibleguy.net'
+  domain: 'mon.template.oxl.at'
 
   db:
     root_pwd: !vault |
@@ -82,9 +82,9 @@ Define the config as needed:
 zabbix_server:
   version: '7.0'  # see docker image tags
   
-  domain: 'mon.template.ansibleguy.net'
+  domain: 'mon.template.oxl.at'
   aliases:
-    - 'monitoring.template.ansibleguy.net'
+    - 'monitoring.template.oxl.at'
 
   # provide settings as environmental variables
   settings:
@@ -153,7 +153,7 @@ ansible-playbook -K -D -i inventory/hosts.yml playbook.yml -e debug=yes
 
 * **Note:** Most of the role's functionality can be opted in or out.
 
-  For all available options - see the default-config located in [the main defaults-file](https://github.com/ansibleguy/sw_zabbix_server/blob/latest/defaults/main/1_main.yml)!
+  For all available options - see the default-config located in [the main defaults-file](https://github.com/O-X-L/ansible-role-zabbix-server/blob/latest/defaults/main/1_main.yml)!
 
 
 * **Warning:** Not every setting/variable you provide will be checked for validity. Bad config might break the role!

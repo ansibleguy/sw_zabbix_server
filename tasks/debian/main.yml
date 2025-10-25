@@ -2,7 +2,7 @@
 
 - name: Zabbix Server | Docker
   ansible.builtin.include_role:
-    name: ansibleguy.infra_docker_minimal
+    name: oxlorg.docker_minimal
   vars:
     docker:
       compose:
@@ -44,7 +44,7 @@
   ansible.builtin.copy:
     content: |
       # ansible_managed
-      # ansibleguy.sw_zabbix_server
+      # oxlorg.zabbix_server
       MARIADB_ROOT_PASSWORD={{ ZBX_CONFIG.db.root_pwd }}
       MARIADB_USER=zabbix
       MARIADB_PASSWORD={{ ZBX_CONFIG.db.app_pwd }}
@@ -59,7 +59,7 @@
   ansible.builtin.copy:
     content: |
       # ansible_managed
-      # ansibleguy.sw_zabbix_server
+      # oxlorg.zabbix_server
       PHP_TZ={{ ZBX_CONFIG.timezone | default(controller_tz.stdout, true) }}
       DB_SERVER_HOST=db
       MYSQL_DATABASE=zabbix
@@ -80,7 +80,7 @@
   ansible.builtin.copy:
     content: |
       # ansible_managed
-      # ansibleguy.sw_zabbix_server
+      # oxlorg.zabbix_server
       DB_SERVER_HOST=db
       MYSQL_DATABASE=zabbix
       MYSQL_USER=zabbix
@@ -132,7 +132,7 @@
 
 - name: Zabbix Server | Webserver
   ansible.builtin.include_role:
-    name: ansibleguy.infra_nginx
+    name: oxlorg.nginx
   when: ZBX_CONFIG.manage.webserver | bool
   vars:
     zbx_nginx_config_overrides:

@@ -40,7 +40,7 @@ defaults_zbx_srv:
     retention_days: 14
     timer: '*-*-* 23:00:00'
 
-  # see: https://github.com/ansibleguy/infra_nginx
+  # see: https://github.com/O-X-L/ansible-role-nginx
   nginx:
     ssl:
       mode: 'snakeoil'  # existing/selfsigned/ca/letsencrypt/snakeoil

@@ -8,7 +8,7 @@
   ansible.builtin.copy:
     content: |
       # ansible_managed
-      # ansibleguy.sw_zabbix_server
+      # oxlorg.zabbix_server
       [client]
       host = 127.0.0.1
       user = root
